@@ -8,7 +8,7 @@ const envSchema = z.object({
   PORT: z.string().default("5000"),
   MONGODB_URI: z.string(),
   JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
-  JWT_EXPIRES_IN: z.number().default(60 * 60 * 24 * 7),
+  JWT_EXPIRES_IN: z.string().default((60 * 60 * 24 * 7).toString()),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -24,5 +24,5 @@ export const config = {
   port: Number(parsed.data.PORT),
   mongoUri: parsed.data.MONGODB_URI,
   jwtSecret: parsed.data.JWT_SECRET,
-  jwtExpiresIn: parsed.data.JWT_EXPIRES_IN,
+  jwtExpiresIn: Number(parsed.data.JWT_EXPIRES_IN),
 } as const;

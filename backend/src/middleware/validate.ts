@@ -1,11 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import type { ZodSchema } from "zod";
 import { ZodError } from "zod";
-import { BadRequestError } from "../errors/AppError.js";
+import { BadRequestError } from "../errors/AppError.ts";
 
-type Schema = ZodSchema<any>;
-
-export function validate(schema: Schema, property: "body" | "params" | "query" = "body") {
+export function validate<T>(schema: ZodSchema<T>, property: "body" | "params" | "query" = "body") {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
       const result = schema.parse(req[property]);

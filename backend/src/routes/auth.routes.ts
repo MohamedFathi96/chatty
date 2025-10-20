@@ -1,18 +1,18 @@
 import { Router } from "express";
-import { register, login } from "../controllers/auth.controller.js";
+import { register, login } from "../controllers/auth.controller.ts";
 import { z } from "zod";
-import { validate } from "../middleware/validate.js";
+import { validate } from "../middleware/validate.ts";
 
 const router = Router();
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(8),
   name: z.string().min(1),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(8),
 });
 

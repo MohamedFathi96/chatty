@@ -1,7 +1,7 @@
-import { createApp } from "./app.js";
-import { connectToDatabase } from "./db/mongoose.js";
-import { config } from "./config/index.js";
-import { logger } from "./lib/logger.js";
+import { createApp } from "./app.ts";
+import { connectToDatabase } from "./db/mongoose.ts";
+import { config } from "./config/index.ts";
+import { logger } from "./lib/logger.ts";
 
 async function start() {
   await connectToDatabase();
