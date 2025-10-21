@@ -1,73 +1,52 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "../types/app.type";
+// AuthContext.tsx
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { apiClient, setupInterceptors } from "@/lib/axios";
+import type { ApiUser } from "@/types/app.type";
 
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (user: User, token: string) => void;
+type AuthContextType = {
+  user: ApiUser | null;
+  accessToken: string | null;
+  login: (token: string, user: ApiUser) => void;
   logout: () => void;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-}
+  refreshToken: () => Promise<void>;
+};
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<ApiUser | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("accessToken"));
 
-  useEffect(() => {
-    // Check for existing token on mount
-    const storedToken = localStorage.getItem("auth_token");
-    const storedUser = localStorage.getItem("auth_user");
-
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setToken(storedToken);
-        setUser(parsedUser);
-      } catch {
-        // Clear invalid stored data
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("auth_user");
-      }
-    }
-
-    setIsLoading(false);
-  }, []);
-
-  const login = (userData: User, authToken: string) => {
+  const login = (token: string, userData: ApiUser) => {
+    setAccessToken(token);
     setUser(userData);
-    setToken(authToken);
-    localStorage.setItem("auth_token", authToken);
-    localStorage.setItem("auth_user", JSON.stringify(userData));
+    localStorage.setItem("accessToken", token);
   };
 
   const logout = () => {
+    setAccessToken(null);
     setUser(null);
-    setToken(null);
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
+    localStorage.removeItem("accessToken");
   };
 
-  const value: AuthContextType = {
-    user,
-    token,
-    login,
-    logout,
-    isAuthenticated: !!user && !!token,
-    isLoading,
+  const refreshToken = async () => {
+    const res = await apiClient.post("/auth/refresh");
+    setAccessToken(res.data.accessToken);
+    localStorage.setItem("accessToken", res.data.accessToken);
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+  useEffect(() => {
+    setupInterceptors(() => accessToken, refreshToken);
+  }, [accessToken]);
+
+  return (
+    <AuthContext.Provider value={{ user, accessToken, login, logout, refreshToken }}>{children}</AuthContext.Provider>
+  );
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+};

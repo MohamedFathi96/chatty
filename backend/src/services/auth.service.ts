@@ -14,8 +14,10 @@ export async function registerUser(params: { email: string; password: string; na
 export async function loginUser(params: { email: string; password: string }) {
   const user = await User.findOne({ email: params.email });
   if (!user) throw new UnauthorizedError("Invalid credentials");
-  const ok = await user.comparePassword(params.password);
-  if (!ok) throw new UnauthorizedError("Invalid credentials");
+
+  const passwordMatch = await user.comparePassword(params.password);
+  if (!passwordMatch) throw new UnauthorizedError("Invalid credentials");
+
   const token = signToken({ sub: user.id, email: user.email });
   return { user: sanitize(user), token };
 }

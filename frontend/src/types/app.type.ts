@@ -1,7 +1,7 @@
-export type User = {
-  _id: string;
+export type ApiUser = {
+  id: string;
   email: string;
-  name: string;
+  name?: string;
   createdAt: string;
   updatedAt: string;
 };

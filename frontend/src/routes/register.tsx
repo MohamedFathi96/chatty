@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { RegisterForm } from "../components/RegisterForm";
+import RegisterPage from "../features/auth/pages/register";
 
 export const Route = createFileRoute("/register")({
   beforeLoad: ({ context }) => {
     // Redirect to home if already authenticated
-    if (context.auth?.isAuthenticated) {
+    if (context.auth?.user) {
       throw redirect({
         to: "/",
       });
@@ -12,7 +12,3 @@ export const Route = createFileRoute("/register")({
   },
   component: RegisterPage,
 });
-
-function RegisterPage() {
-  return <RegisterForm />;
-}
