@@ -1,7 +1,6 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { useAuth } from "./contexts/AuthContext";
-import { SocketProvider } from "./contexts/SocketContext";
 
 // Create a new router instance
 const appRouter = createRouter({
@@ -14,11 +13,7 @@ const appRouter = createRouter({
 const App = () => {
   const authContext = useAuth();
 
-  return (
-    <SocketProvider>
-      <RouterProvider router={appRouter} context={{ auth: authContext }} />
-    </SocketProvider>
-  );
+  return <RouterProvider router={appRouter} context={{ auth: authContext }} />;
 };
 
 export default App;
