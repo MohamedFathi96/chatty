@@ -46,7 +46,6 @@ export function useStartChat() {
   return useMutation({
     mutationFn: usersApi.startChat,
     onSuccess: () => {
-      // Invalidate chats to refresh the list
       queryClient.invalidateQueries({ queryKey: ["chats"] });
     },
     onError: (error) => {
