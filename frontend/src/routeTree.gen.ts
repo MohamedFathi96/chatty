@@ -17,8 +17,11 @@ import { Route as UnautherizedLoginRouteImport } from './routes/_unautherized/lo
 import { Route as AutherizedUsersRouteImport } from './routes/_autherized/users'
 import { Route as AutherizedSettingsRouteImport } from './routes/_autherized/settings'
 import { Route as AutherizedFeedsRouteImport } from './routes/_autherized/feeds'
-import { Route as AutherizedChatsRouteImport } from './routes/_autherized/chats'
-import { Route as AutherizedChannelsRouteImport } from './routes/_autherized/channels'
+import { Route as AutherizedChatRouteImport } from './routes/_autherized/_chat'
+import { Route as AutherizedChatChatsRouteImport } from './routes/_autherized/_chat/chats'
+import { Route as AutherizedChatChannelsRouteImport } from './routes/_autherized/_chat/channels'
+import { Route as AutherizedChatChatsIdRouteImport } from './routes/_autherized/_chat/chats/$id'
+import { Route as AutherizedChatChannelsIdRouteImport } from './routes/_autherized/_chat/channels/$id'
 
 const UnautherizedRoute = UnautherizedRouteImport.update({
   id: '/_unautherized',
@@ -58,83 +61,112 @@ const AutherizedFeedsRoute = AutherizedFeedsRouteImport.update({
   path: '/feeds',
   getParentRoute: () => AutherizedRoute,
 } as any)
-const AutherizedChatsRoute = AutherizedChatsRouteImport.update({
+const AutherizedChatRoute = AutherizedChatRouteImport.update({
+  id: '/_chat',
+  getParentRoute: () => AutherizedRoute,
+} as any)
+const AutherizedChatChatsRoute = AutherizedChatChatsRouteImport.update({
   id: '/chats',
   path: '/chats',
-  getParentRoute: () => AutherizedRoute,
+  getParentRoute: () => AutherizedChatRoute,
 } as any)
-const AutherizedChannelsRoute = AutherizedChannelsRouteImport.update({
+const AutherizedChatChannelsRoute = AutherizedChatChannelsRouteImport.update({
   id: '/channels',
   path: '/channels',
-  getParentRoute: () => AutherizedRoute,
+  getParentRoute: () => AutherizedChatRoute,
 } as any)
+const AutherizedChatChatsIdRoute = AutherizedChatChatsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AutherizedChatChatsRoute,
+} as any)
+const AutherizedChatChannelsIdRoute =
+  AutherizedChatChannelsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AutherizedChatChannelsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/channels': typeof AutherizedChannelsRoute
-  '/chats': typeof AutherizedChatsRoute
   '/feeds': typeof AutherizedFeedsRoute
   '/settings': typeof AutherizedSettingsRoute
   '/users': typeof AutherizedUsersRoute
   '/login': typeof UnautherizedLoginRoute
   '/register': typeof UnautherizedRegisterRoute
   '/': typeof AutherizedIndexRoute
+  '/channels': typeof AutherizedChatChannelsRouteWithChildren
+  '/chats': typeof AutherizedChatChatsRouteWithChildren
+  '/channels/$id': typeof AutherizedChatChannelsIdRoute
+  '/chats/$id': typeof AutherizedChatChatsIdRoute
 }
 export interface FileRoutesByTo {
-  '/channels': typeof AutherizedChannelsRoute
-  '/chats': typeof AutherizedChatsRoute
   '/feeds': typeof AutherizedFeedsRoute
   '/settings': typeof AutherizedSettingsRoute
   '/users': typeof AutherizedUsersRoute
   '/login': typeof UnautherizedLoginRoute
   '/register': typeof UnautherizedRegisterRoute
   '/': typeof AutherizedIndexRoute
+  '/channels': typeof AutherizedChatChannelsRouteWithChildren
+  '/chats': typeof AutherizedChatChatsRouteWithChildren
+  '/channels/$id': typeof AutherizedChatChannelsIdRoute
+  '/chats/$id': typeof AutherizedChatChatsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_autherized': typeof AutherizedRouteWithChildren
   '/_unautherized': typeof UnautherizedRouteWithChildren
-  '/_autherized/channels': typeof AutherizedChannelsRoute
-  '/_autherized/chats': typeof AutherizedChatsRoute
+  '/_autherized/_chat': typeof AutherizedChatRouteWithChildren
   '/_autherized/feeds': typeof AutherizedFeedsRoute
   '/_autherized/settings': typeof AutherizedSettingsRoute
   '/_autherized/users': typeof AutherizedUsersRoute
   '/_unautherized/login': typeof UnautherizedLoginRoute
   '/_unautherized/register': typeof UnautherizedRegisterRoute
   '/_autherized/': typeof AutherizedIndexRoute
+  '/_autherized/_chat/channels': typeof AutherizedChatChannelsRouteWithChildren
+  '/_autherized/_chat/chats': typeof AutherizedChatChatsRouteWithChildren
+  '/_autherized/_chat/channels/$id': typeof AutherizedChatChannelsIdRoute
+  '/_autherized/_chat/chats/$id': typeof AutherizedChatChatsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/channels'
-    | '/chats'
     | '/feeds'
     | '/settings'
     | '/users'
     | '/login'
     | '/register'
     | '/'
+    | '/channels'
+    | '/chats'
+    | '/channels/$id'
+    | '/chats/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/channels'
-    | '/chats'
     | '/feeds'
     | '/settings'
     | '/users'
     | '/login'
     | '/register'
     | '/'
+    | '/channels'
+    | '/chats'
+    | '/channels/$id'
+    | '/chats/$id'
   id:
     | '__root__'
     | '/_autherized'
     | '/_unautherized'
-    | '/_autherized/channels'
-    | '/_autherized/chats'
+    | '/_autherized/_chat'
     | '/_autherized/feeds'
     | '/_autherized/settings'
     | '/_autherized/users'
     | '/_unautherized/login'
     | '/_unautherized/register'
     | '/_autherized/'
+    | '/_autherized/_chat/channels'
+    | '/_autherized/_chat/chats'
+    | '/_autherized/_chat/channels/$id'
+    | '/_autherized/_chat/chats/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -200,26 +232,85 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AutherizedFeedsRouteImport
       parentRoute: typeof AutherizedRoute
     }
-    '/_autherized/chats': {
-      id: '/_autherized/chats'
-      path: '/chats'
-      fullPath: '/chats'
-      preLoaderRoute: typeof AutherizedChatsRouteImport
+    '/_autherized/_chat': {
+      id: '/_autherized/_chat'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AutherizedChatRouteImport
       parentRoute: typeof AutherizedRoute
     }
-    '/_autherized/channels': {
-      id: '/_autherized/channels'
+    '/_autherized/_chat/chats': {
+      id: '/_autherized/_chat/chats'
+      path: '/chats'
+      fullPath: '/chats'
+      preLoaderRoute: typeof AutherizedChatChatsRouteImport
+      parentRoute: typeof AutherizedChatRoute
+    }
+    '/_autherized/_chat/channels': {
+      id: '/_autherized/_chat/channels'
       path: '/channels'
       fullPath: '/channels'
-      preLoaderRoute: typeof AutherizedChannelsRouteImport
-      parentRoute: typeof AutherizedRoute
+      preLoaderRoute: typeof AutherizedChatChannelsRouteImport
+      parentRoute: typeof AutherizedChatRoute
+    }
+    '/_autherized/_chat/chats/$id': {
+      id: '/_autherized/_chat/chats/$id'
+      path: '/$id'
+      fullPath: '/chats/$id'
+      preLoaderRoute: typeof AutherizedChatChatsIdRouteImport
+      parentRoute: typeof AutherizedChatChatsRoute
+    }
+    '/_autherized/_chat/channels/$id': {
+      id: '/_autherized/_chat/channels/$id'
+      path: '/$id'
+      fullPath: '/channels/$id'
+      preLoaderRoute: typeof AutherizedChatChannelsIdRouteImport
+      parentRoute: typeof AutherizedChatChannelsRoute
     }
   }
 }
 
+interface AutherizedChatChannelsRouteChildren {
+  AutherizedChatChannelsIdRoute: typeof AutherizedChatChannelsIdRoute
+}
+
+const AutherizedChatChannelsRouteChildren: AutherizedChatChannelsRouteChildren =
+  {
+    AutherizedChatChannelsIdRoute: AutherizedChatChannelsIdRoute,
+  }
+
+const AutherizedChatChannelsRouteWithChildren =
+  AutherizedChatChannelsRoute._addFileChildren(
+    AutherizedChatChannelsRouteChildren,
+  )
+
+interface AutherizedChatChatsRouteChildren {
+  AutherizedChatChatsIdRoute: typeof AutherizedChatChatsIdRoute
+}
+
+const AutherizedChatChatsRouteChildren: AutherizedChatChatsRouteChildren = {
+  AutherizedChatChatsIdRoute: AutherizedChatChatsIdRoute,
+}
+
+const AutherizedChatChatsRouteWithChildren =
+  AutherizedChatChatsRoute._addFileChildren(AutherizedChatChatsRouteChildren)
+
+interface AutherizedChatRouteChildren {
+  AutherizedChatChannelsRoute: typeof AutherizedChatChannelsRouteWithChildren
+  AutherizedChatChatsRoute: typeof AutherizedChatChatsRouteWithChildren
+}
+
+const AutherizedChatRouteChildren: AutherizedChatRouteChildren = {
+  AutherizedChatChannelsRoute: AutherizedChatChannelsRouteWithChildren,
+  AutherizedChatChatsRoute: AutherizedChatChatsRouteWithChildren,
+}
+
+const AutherizedChatRouteWithChildren = AutherizedChatRoute._addFileChildren(
+  AutherizedChatRouteChildren,
+)
+
 interface AutherizedRouteChildren {
-  AutherizedChannelsRoute: typeof AutherizedChannelsRoute
-  AutherizedChatsRoute: typeof AutherizedChatsRoute
+  AutherizedChatRoute: typeof AutherizedChatRouteWithChildren
   AutherizedFeedsRoute: typeof AutherizedFeedsRoute
   AutherizedSettingsRoute: typeof AutherizedSettingsRoute
   AutherizedUsersRoute: typeof AutherizedUsersRoute
@@ -227,8 +318,7 @@ interface AutherizedRouteChildren {
 }
 
 const AutherizedRouteChildren: AutherizedRouteChildren = {
-  AutherizedChannelsRoute: AutherizedChannelsRoute,
-  AutherizedChatsRoute: AutherizedChatsRoute,
+  AutherizedChatRoute: AutherizedChatRouteWithChildren,
   AutherizedFeedsRoute: AutherizedFeedsRoute,
   AutherizedSettingsRoute: AutherizedSettingsRoute,
   AutherizedUsersRoute: AutherizedUsersRoute,
