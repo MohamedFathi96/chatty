@@ -14,19 +14,24 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<ApiUser | null>(null);
+  const [user, setUser] = useState<ApiUser | null>(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("accessToken"));
 
   const login = (token: string, userData: ApiUser) => {
     setAccessToken(token);
     setUser(userData);
     localStorage.setItem("accessToken", token);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
     setAccessToken(null);
     setUser(null);
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
   };
 
   const refreshToken = async () => {

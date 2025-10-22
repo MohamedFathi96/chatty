@@ -3,7 +3,12 @@ import { routeTree } from "./routeTree.gen";
 import { useAuth } from "./contexts/AuthContext";
 
 // Create a new router instance
-const router = createRouter({ routeTree });
+const router = createRouter({
+  routeTree,
+  context: {
+    auth: undefined!,
+  },
+});
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {

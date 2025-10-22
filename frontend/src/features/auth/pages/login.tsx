@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLogin } from "../services";
 import type { LoginRequest } from "../types";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState<LoginRequest>({
@@ -16,6 +17,11 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const loginMutation = useLogin();
+
+  const { accessToken } = useAuth();
+  useEffect(() => {
+    if (accessToken) navigate({ to: "/" });
+  }, [accessToken, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,7 +58,6 @@ const LoginPage = () => {
 
     try {
       await loginMutation.mutateAsync(formData);
-      navigate({ to: "/" });
     } catch (error) {
       console.error("Login failed:", error);
     }

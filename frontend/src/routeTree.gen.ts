@@ -9,86 +9,142 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as UnautherizedRouteImport } from './routes/_unautherized'
+import { Route as AutherizedRouteImport } from './routes/_autherized'
+import { Route as AutherizedIndexRouteImport } from './routes/_autherized/index'
+import { Route as UnautherizedRegisterRouteImport } from './routes/_unautherized/register'
+import { Route as UnautherizedLoginRouteImport } from './routes/_unautherized/login'
 
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+const UnautherizedRoute = UnautherizedRouteImport.update({
+  id: '/_unautherized',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const AutherizedRoute = AutherizedRouteImport.update({
+  id: '/_autherized',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AutherizedIndexRoute = AutherizedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AutherizedRoute,
+} as any)
+const UnautherizedRegisterRoute = UnautherizedRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => UnautherizedRoute,
+} as any)
+const UnautherizedLoginRoute = UnautherizedLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => UnautherizedRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
+  '/login': typeof UnautherizedLoginRoute
+  '/register': typeof UnautherizedRegisterRoute
+  '/': typeof AutherizedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
+  '/login': typeof UnautherizedLoginRoute
+  '/register': typeof UnautherizedRegisterRoute
+  '/': typeof AutherizedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
+  '/_autherized': typeof AutherizedRouteWithChildren
+  '/_unautherized': typeof UnautherizedRouteWithChildren
+  '/_unautherized/login': typeof UnautherizedLoginRoute
+  '/_unautherized/register': typeof UnautherizedRegisterRoute
+  '/_autherized/': typeof AutherizedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register'
+  fullPaths: '/login' | '/register' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register'
-  id: '__root__' | '/' | '/login' | '/register'
+  to: '/login' | '/register' | '/'
+  id:
+    | '__root__'
+    | '/_autherized'
+    | '/_unautherized'
+    | '/_unautherized/login'
+    | '/_unautherized/register'
+    | '/_autherized/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  LoginRoute: typeof LoginRoute
-  RegisterRoute: typeof RegisterRoute
+  AutherizedRoute: typeof AutherizedRouteWithChildren
+  UnautherizedRoute: typeof UnautherizedRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
+    '/_unautherized': {
+      id: '/_unautherized'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof UnautherizedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/_autherized': {
+      id: '/_autherized'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AutherizedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_autherized/': {
+      id: '/_autherized/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AutherizedIndexRouteImport
+      parentRoute: typeof AutherizedRoute
+    }
+    '/_unautherized/register': {
+      id: '/_unautherized/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof UnautherizedRegisterRouteImport
+      parentRoute: typeof UnautherizedRoute
+    }
+    '/_unautherized/login': {
+      id: '/_unautherized/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof UnautherizedLoginRouteImport
+      parentRoute: typeof UnautherizedRoute
     }
   }
 }
 
+interface AutherizedRouteChildren {
+  AutherizedIndexRoute: typeof AutherizedIndexRoute
+}
+
+const AutherizedRouteChildren: AutherizedRouteChildren = {
+  AutherizedIndexRoute: AutherizedIndexRoute,
+}
+
+const AutherizedRouteWithChildren = AutherizedRoute._addFileChildren(
+  AutherizedRouteChildren,
+)
+
+interface UnautherizedRouteChildren {
+  UnautherizedLoginRoute: typeof UnautherizedLoginRoute
+  UnautherizedRegisterRoute: typeof UnautherizedRegisterRoute
+}
+
+const UnautherizedRouteChildren: UnautherizedRouteChildren = {
+  UnautherizedLoginRoute: UnautherizedLoginRoute,
+  UnautherizedRegisterRoute: UnautherizedRegisterRoute,
+}
+
+const UnautherizedRouteWithChildren = UnautherizedRoute._addFileChildren(
+  UnautherizedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  LoginRoute: LoginRoute,
-  RegisterRoute: RegisterRoute,
+  AutherizedRoute: AutherizedRouteWithChildren,
+  UnautherizedRoute: UnautherizedRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

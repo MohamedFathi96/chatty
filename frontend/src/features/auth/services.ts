@@ -22,7 +22,7 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authApi.login(data),
-    onSuccess: (response) => {
+    onSuccess: (response: LoginResponse) => {
       login(response.data.token, response.data.user);
     },
     onError: (error: AxiosError) => {
