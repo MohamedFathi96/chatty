@@ -14,6 +14,10 @@ import { Route as AutherizedRouteImport } from './routes/_autherized'
 import { Route as AutherizedIndexRouteImport } from './routes/_autherized/index'
 import { Route as UnautherizedRegisterRouteImport } from './routes/_unautherized/register'
 import { Route as UnautherizedLoginRouteImport } from './routes/_unautherized/login'
+import { Route as AutherizedSettingsRouteImport } from './routes/_autherized/settings'
+import { Route as AutherizedFeedsRouteImport } from './routes/_autherized/feeds'
+import { Route as AutherizedChatsRouteImport } from './routes/_autherized/chats'
+import { Route as AutherizedChannelsRouteImport } from './routes/_autherized/channels'
 
 const UnautherizedRoute = UnautherizedRouteImport.update({
   id: '/_unautherized',
@@ -38,13 +42,41 @@ const UnautherizedLoginRoute = UnautherizedLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => UnautherizedRoute,
 } as any)
+const AutherizedSettingsRoute = AutherizedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AutherizedRoute,
+} as any)
+const AutherizedFeedsRoute = AutherizedFeedsRouteImport.update({
+  id: '/feeds',
+  path: '/feeds',
+  getParentRoute: () => AutherizedRoute,
+} as any)
+const AutherizedChatsRoute = AutherizedChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
+  getParentRoute: () => AutherizedRoute,
+} as any)
+const AutherizedChannelsRoute = AutherizedChannelsRouteImport.update({
+  id: '/channels',
+  path: '/channels',
+  getParentRoute: () => AutherizedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/channels': typeof AutherizedChannelsRoute
+  '/chats': typeof AutherizedChatsRoute
+  '/feeds': typeof AutherizedFeedsRoute
+  '/settings': typeof AutherizedSettingsRoute
   '/login': typeof UnautherizedLoginRoute
   '/register': typeof UnautherizedRegisterRoute
   '/': typeof AutherizedIndexRoute
 }
 export interface FileRoutesByTo {
+  '/channels': typeof AutherizedChannelsRoute
+  '/chats': typeof AutherizedChatsRoute
+  '/feeds': typeof AutherizedFeedsRoute
+  '/settings': typeof AutherizedSettingsRoute
   '/login': typeof UnautherizedLoginRoute
   '/register': typeof UnautherizedRegisterRoute
   '/': typeof AutherizedIndexRoute
@@ -53,19 +85,41 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_autherized': typeof AutherizedRouteWithChildren
   '/_unautherized': typeof UnautherizedRouteWithChildren
+  '/_autherized/channels': typeof AutherizedChannelsRoute
+  '/_autherized/chats': typeof AutherizedChatsRoute
+  '/_autherized/feeds': typeof AutherizedFeedsRoute
+  '/_autherized/settings': typeof AutherizedSettingsRoute
   '/_unautherized/login': typeof UnautherizedLoginRoute
   '/_unautherized/register': typeof UnautherizedRegisterRoute
   '/_autherized/': typeof AutherizedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/register' | '/'
+  fullPaths:
+    | '/channels'
+    | '/chats'
+    | '/feeds'
+    | '/settings'
+    | '/login'
+    | '/register'
+    | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/register' | '/'
+  to:
+    | '/channels'
+    | '/chats'
+    | '/feeds'
+    | '/settings'
+    | '/login'
+    | '/register'
+    | '/'
   id:
     | '__root__'
     | '/_autherized'
     | '/_unautherized'
+    | '/_autherized/channels'
+    | '/_autherized/chats'
+    | '/_autherized/feeds'
+    | '/_autherized/settings'
     | '/_unautherized/login'
     | '/_unautherized/register'
     | '/_autherized/'
@@ -113,14 +167,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnautherizedLoginRouteImport
       parentRoute: typeof UnautherizedRoute
     }
+    '/_autherized/settings': {
+      id: '/_autherized/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AutherizedSettingsRouteImport
+      parentRoute: typeof AutherizedRoute
+    }
+    '/_autherized/feeds': {
+      id: '/_autherized/feeds'
+      path: '/feeds'
+      fullPath: '/feeds'
+      preLoaderRoute: typeof AutherizedFeedsRouteImport
+      parentRoute: typeof AutherizedRoute
+    }
+    '/_autherized/chats': {
+      id: '/_autherized/chats'
+      path: '/chats'
+      fullPath: '/chats'
+      preLoaderRoute: typeof AutherizedChatsRouteImport
+      parentRoute: typeof AutherizedRoute
+    }
+    '/_autherized/channels': {
+      id: '/_autherized/channels'
+      path: '/channels'
+      fullPath: '/channels'
+      preLoaderRoute: typeof AutherizedChannelsRouteImport
+      parentRoute: typeof AutherizedRoute
+    }
   }
 }
 
 interface AutherizedRouteChildren {
+  AutherizedChannelsRoute: typeof AutherizedChannelsRoute
+  AutherizedChatsRoute: typeof AutherizedChatsRoute
+  AutherizedFeedsRoute: typeof AutherizedFeedsRoute
+  AutherizedSettingsRoute: typeof AutherizedSettingsRoute
   AutherizedIndexRoute: typeof AutherizedIndexRoute
 }
 
 const AutherizedRouteChildren: AutherizedRouteChildren = {
+  AutherizedChannelsRoute: AutherizedChannelsRoute,
+  AutherizedChatsRoute: AutherizedChatsRoute,
+  AutherizedFeedsRoute: AutherizedFeedsRoute,
+  AutherizedSettingsRoute: AutherizedSettingsRoute,
   AutherizedIndexRoute: AutherizedIndexRoute,
 }
 
