@@ -12,3 +12,15 @@ export type ChatsResponse = SuccessResponse<{
     lastMessageAt: string;
   }>;
 }>;
+
+export type ChatMessagesResponse = SuccessResponse<{
+  messages: Array<{
+    id: string;
+    content: string;
+    senderId: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  }>;
+}>;
