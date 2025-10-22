@@ -1,25 +1,31 @@
 import { Link } from "@tanstack/react-router";
 import { MessageSquare, Radio, Plus, Hash, User } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-
-// Mock data - replace with real data from your API
-const mockChats = [
-  { id: "1", name: "John Doe", lastMessage: "Hey, how are you?", unread: 2, avatar: "JD" },
-  { id: "2", name: "Jane Smith", lastMessage: "Thanks for the help!", unread: 0, avatar: "JS" },
-  { id: "3", name: "Mike Johnson", lastMessage: "See you tomorrow", unread: 1, avatar: "MJ" },
-];
-
-const mockChannels = [
-  { id: "1", name: "general", description: "General discussion", members: 24, unread: 3 },
-  { id: "2", name: "random", description: "Random stuff", members: 18, unread: 0 },
-  { id: "3", name: "development", description: "Dev discussions", members: 12, unread: 5 },
-];
+import { chatServices, channelServices } from "@/features/chatting/services";
 
 interface ChatSidebarProps {
   activeSection: "chats" | "channels";
 }
 
 export function ChatSidebar({ activeSection }: ChatSidebarProps) {
+  // Fetch chats
+  const { data: chatsData, isLoading: chatsLoading } = useQuery({
+    queryKey: ["chats"],
+    queryFn: chatServices.getChats,
+    enabled: activeSection === "chats",
+  });
+
+  // Fetch channels
+  const { data: channelsData, isLoading: channelsLoading } = useQuery({
+    queryKey: ["channels"],
+    queryFn: channelServices.getChannels,
+    enabled: activeSection === "channels",
+  });
+
+  const chats = chatsData?.chats || [];
+  const channels = channelsData?.channels || [];
+
   return (
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
       {/* Header with tabs */}
@@ -61,29 +67,39 @@ export function ChatSidebar({ activeSection }: ChatSidebarProps) {
             {/* Chats List */}
             <div className="space-y-2">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Recent Chats</h3>
-              {mockChats.map((chat) => (
-                <Link
-                  key={chat.id}
-                  to="/chats/$id"
-                  params={{ id: chat.id }}
-                  className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
-                    <span className="text-sm font-semibold text-white">{chat.avatar}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900 truncate">{chat.name}</p>
-                      {chat.unread > 0 && (
-                        <span className="bg-indigo-600 text-white text-xs rounded-full px-2 py-1 ml-2">
-                          {chat.unread}
-                        </span>
-                      )}
+              {chatsLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : chats.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-500">No chats yet</p>
+                </div>
+              ) : (
+                chats.map((chat) => (
+                  <Link
+                    key={chat.id}
+                    to="/chats/$id"
+                    params={{ id: chat.id }}
+                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                      <span className="text-sm font-semibold text-white">{chat.avatar}</span>
                     </div>
-                    <p className="text-xs text-gray-500 truncate mt-1">{chat.lastMessage}</p>
-                  </div>
-                </Link>
-              ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-gray-900 truncate">{chat.name}</p>
+                        {chat.unread > 0 && (
+                          <span className="bg-indigo-600 text-white text-xs rounded-full px-2 py-1 ml-2">
+                            {chat.unread}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 truncate mt-1">{chat.lastMessage}</p>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         )}
@@ -99,32 +115,42 @@ export function ChatSidebar({ activeSection }: ChatSidebarProps) {
             {/* Channels List */}
             <div className="space-y-2">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Your Channels</h3>
-              {mockChannels.map((channel) => (
-                <Link
-                  key={channel.id}
-                  to="/channels/$id"
-                  params={{ id: channel.id }}
-                  className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mr-3">
-                    <Hash className="w-5 h-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900 truncate">#{channel.name}</p>
-                      {channel.unread > 0 && (
-                        <span className="bg-indigo-600 text-white text-xs rounded-full px-2 py-1 ml-2">
-                          {channel.unread}
-                        </span>
-                      )}
+              {channelsLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : channels.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-500">No channels yet</p>
+                </div>
+              ) : (
+                channels.map((channel) => (
+                  <Link
+                    key={channel.id}
+                    to="/channels/$id"
+                    params={{ id: channel.id }}
+                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mr-3">
+                      <Hash className="w-5 h-5 text-gray-600" />
                     </div>
-                    <div className="flex items-center mt-1">
-                      <User className="w-3 h-3 text-gray-400 mr-1" />
-                      <p className="text-xs text-gray-500">{channel.members} members</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-gray-900 truncate">#{channel.name}</p>
+                        {channel.unread > 0 && (
+                          <span className="bg-indigo-600 text-white text-xs rounded-full px-2 py-1 ml-2">
+                            {channel.unread}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center mt-1">
+                        <User className="w-3 h-3 text-gray-400 mr-1" />
+                        <p className="text-xs text-gray-500">{channel.members} members</p>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         )}

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Radio, Hash } from "lucide-react";
 
-export const Route = createFileRoute("/_autherized/_chat/channels")({
+export const Route = createFileRoute("/_autherized/_chat/channels/")({
   component: ChannelsPage,
 });
 

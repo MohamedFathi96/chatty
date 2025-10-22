@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageSquare } from "lucide-react";
 
-export const Route = createFileRoute("/_autherized/_chat/chats")({
+export const Route = createFileRoute("/_autherized/_chat/chats/")({
   component: ChatsPage,
 });
 
