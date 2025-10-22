@@ -14,6 +14,7 @@ import { Route as AutherizedRouteImport } from './routes/_autherized'
 import { Route as AutherizedIndexRouteImport } from './routes/_autherized/index'
 import { Route as UnautherizedRegisterRouteImport } from './routes/_unautherized/register'
 import { Route as UnautherizedLoginRouteImport } from './routes/_unautherized/login'
+import { Route as AutherizedUsersRouteImport } from './routes/_autherized/users'
 import { Route as AutherizedSettingsRouteImport } from './routes/_autherized/settings'
 import { Route as AutherizedFeedsRouteImport } from './routes/_autherized/feeds'
 import { Route as AutherizedChatsRouteImport } from './routes/_autherized/chats'
@@ -42,6 +43,11 @@ const UnautherizedLoginRoute = UnautherizedLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => UnautherizedRoute,
 } as any)
+const AutherizedUsersRoute = AutherizedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AutherizedRoute,
+} as any)
 const AutherizedSettingsRoute = AutherizedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/chats': typeof AutherizedChatsRoute
   '/feeds': typeof AutherizedFeedsRoute
   '/settings': typeof AutherizedSettingsRoute
+  '/users': typeof AutherizedUsersRoute
   '/login': typeof UnautherizedLoginRoute
   '/register': typeof UnautherizedRegisterRoute
   '/': typeof AutherizedIndexRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/chats': typeof AutherizedChatsRoute
   '/feeds': typeof AutherizedFeedsRoute
   '/settings': typeof AutherizedSettingsRoute
+  '/users': typeof AutherizedUsersRoute
   '/login': typeof UnautherizedLoginRoute
   '/register': typeof UnautherizedRegisterRoute
   '/': typeof AutherizedIndexRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/_autherized/chats': typeof AutherizedChatsRoute
   '/_autherized/feeds': typeof AutherizedFeedsRoute
   '/_autherized/settings': typeof AutherizedSettingsRoute
+  '/_autherized/users': typeof AutherizedUsersRoute
   '/_unautherized/login': typeof UnautherizedLoginRoute
   '/_unautherized/register': typeof UnautherizedRegisterRoute
   '/_autherized/': typeof AutherizedIndexRoute
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/feeds'
     | '/settings'
+    | '/users'
     | '/login'
     | '/register'
     | '/'
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/feeds'
     | '/settings'
+    | '/users'
     | '/login'
     | '/register'
     | '/'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/_autherized/chats'
     | '/_autherized/feeds'
     | '/_autherized/settings'
+    | '/_autherized/users'
     | '/_unautherized/login'
     | '/_unautherized/register'
     | '/_autherized/'
@@ -167,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnautherizedLoginRouteImport
       parentRoute: typeof UnautherizedRoute
     }
+    '/_autherized/users': {
+      id: '/_autherized/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AutherizedUsersRouteImport
+      parentRoute: typeof AutherizedRoute
+    }
     '/_autherized/settings': {
       id: '/_autherized/settings'
       path: '/settings'
@@ -203,6 +222,7 @@ interface AutherizedRouteChildren {
   AutherizedChatsRoute: typeof AutherizedChatsRoute
   AutherizedFeedsRoute: typeof AutherizedFeedsRoute
   AutherizedSettingsRoute: typeof AutherizedSettingsRoute
+  AutherizedUsersRoute: typeof AutherizedUsersRoute
   AutherizedIndexRoute: typeof AutherizedIndexRoute
 }
 
@@ -211,6 +231,7 @@ const AutherizedRouteChildren: AutherizedRouteChildren = {
   AutherizedChatsRoute: AutherizedChatsRoute,
   AutherizedFeedsRoute: AutherizedFeedsRoute,
   AutherizedSettingsRoute: AutherizedSettingsRoute,
+  AutherizedUsersRoute: AutherizedUsersRoute,
   AutherizedIndexRoute: AutherizedIndexRoute,
 }
 
