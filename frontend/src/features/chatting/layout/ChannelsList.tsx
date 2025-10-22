@@ -5,8 +5,7 @@ import { useChannels } from "../services/channels";
 export function ChannelsList() {
   // Fetch channels
   const { data: channelsData, isLoading: channelsLoading } = useChannels();
-
-  const channels = channelsData?.channels || [];
+  const channels = channelsData?.data?.channels || [];
 
   return (
     <div className="p-4">

@@ -14,7 +14,7 @@ export const startChat = catchAsync(async (req: Request, res: Response, next: Ne
 });
 
 export const getChats = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const currentUserId = (req as any).user.sub; // From JWT middleware
+  const currentUserId = (req as any).user.sub;
 
   const chats = await getUserChats(currentUserId);
 

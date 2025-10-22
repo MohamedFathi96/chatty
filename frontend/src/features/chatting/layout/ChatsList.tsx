@@ -5,7 +5,7 @@ import { useChats } from "../services/chats";
 export function ChatsList() {
   // Fetch chats
   const { data: chatsData, isLoading: chatsLoading } = useChats();
-  const chats = chatsData?.chats || [];
+  const chats = chatsData?.data?.chats || [];
 
   return (
     <div className="p-4">
@@ -27,27 +27,34 @@ export function ChatsList() {
             <p className="text-sm text-gray-500">No chats yet</p>
           </div>
         ) : (
-          chats.map((chat) => (
-            <Link
-              key={chat.id}
-              to="/chats/$id"
-              params={{ id: chat.id }}
-              className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
-                <span className="text-sm font-semibold text-white">{chat.avatar}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900 truncate">{chat.name}</p>
-                  {chat.unread > 0 && (
-                    <span className="bg-indigo-600 text-white text-xs rounded-full px-2 py-1 ml-2">{chat.unread}</span>
-                  )}
+          chats.map((chat) => {
+            // Generate avatar initials from participant name
+            const avatarInitials = chat.participant.name
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase())
+              .join("")
+              .slice(0, 2);
+
+            return (
+              <Link
+                key={chat.id}
+                to="/chats/$id"
+                params={{ id: chat.id }}
+                className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                  <span className="text-sm font-semibold text-white">{avatarInitials}</span>
                 </div>
-                <p className="text-xs text-gray-500 truncate mt-1">{chat.lastMessage}</p>
-              </div>
-            </Link>
-          ))
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-gray-900 truncate">{chat.participant.name}</p>
+                    <p className="text-xs text-gray-400">{new Date(chat.lastMessageAt).toLocaleDateString()}</p>
+                  </div>
+                  <p className="text-xs text-gray-500 truncate mt-1">{chat.lastMessage}</p>
+                </div>
+              </Link>
+            );
+          })
         )}
       </div>
     </div>

@@ -42,14 +42,14 @@ export async function getUserChats(userId: string) {
     .sort({ lastMessageAt: -1, createdAt: -1 })
     .lean();
 
-  return chats.map((chat) => ({
-    id: chat._id.toString(),
-    type: chat.type,
-    name: chat.name,
-    participants: chat.participants,
-    lastMessage: chat.lastMessage,
-    lastMessageAt: chat.lastMessageAt,
-    createdAt: chat.createdAt,
-    updatedAt: chat.updatedAt,
-  }));
+  return chats.map((chat) => {
+    const otherParticipant = chat.participants.find((participant: any) => participant._id.toString() !== userId);
+
+    return {
+      id: chat._id.toString(),
+      participant: otherParticipant,
+      lastMessage: chat.lastMessage,
+      lastMessageAt: chat.lastMessageAt?.toISOString(),
+    };
+  });
 }
