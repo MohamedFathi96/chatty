@@ -36,14 +36,14 @@ export class WebSocketService {
     this.io.use(async (socket: AuthenticatedSocket, next) => {
       try {
         const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace("Bearer ", "");
-        
+
         if (!token) {
           return next(new Error("Authentication token required"));
         }
 
         const decoded = jwt.verify(token, config.jwtSecret) as { userId: string };
         const user = await User.findById(decoded.userId).select("name email");
-        
+
         if (!user) {
           return next(new Error("User not found"));
         }
@@ -51,7 +51,7 @@ export class WebSocketService {
         socket.userId = decoded.userId;
         socket.data.userId = decoded.userId;
         socket.data.userName = user.name;
-        
+
         logger.info(`User ${user.name} connected via WebSocket`, { userId: decoded.userId, socketId: socket.id });
         next();
       } catch (error) {
@@ -82,7 +82,7 @@ export class WebSocketService {
             return;
           }
 
-          if (!chat.participants.some(p => p.toString() === userId)) {
+          if (!chat.participants.some((p) => p.toString() === userId)) {
             socket.emit("connection:error", "Access denied: You are not a participant in this chat");
             return;
           }
@@ -95,10 +95,10 @@ export class WebSocketService {
           // Join the new chat room
           socket.chatId = chatId;
           socket.join(`chat:${chatId}`);
-          
+
           // Notify other participants that user joined
           socket.to(`chat:${chatId}`).emit("user:joined", { userId, userName });
-          
+
           logger.info(`User ${userName} joined chat ${chatId}`, { userId, chatId, socketId: socket.id });
         } catch (error) {
           logger.error("Error joining chat", { error, userId, chatId });
@@ -126,7 +126,7 @@ export class WebSocketService {
             return;
           }
 
-          if (!channel.members.some(m => m.toString() === userId)) {
+          if (!channel.members.some((m) => m.toString() === userId)) {
             socket.emit("connection:error", "Access denied: You are not a member of this channel");
             return;
           }
@@ -139,10 +139,10 @@ export class WebSocketService {
           // Join the new channel room
           socket.channelId = channelId;
           socket.join(`channel:${channelId}`);
-          
+
           // Notify other members that user joined
           socket.to(`channel:${channelId}`).emit("user:joined", { userId, userName });
-          
+
           logger.info(`User ${userName} joined channel ${channelId}`, { userId, channelId, socketId: socket.id });
         } catch (error) {
           logger.error("Error joining channel", { error, userId, channelId });
@@ -164,7 +164,7 @@ export class WebSocketService {
       socket.on("typing:start", (data) => {
         const { chatId, channelId } = data;
         const room = chatId ? `chat:${chatId}` : channelId ? `channel:${channelId}` : null;
-        
+
         if (room) {
           socket.to(room).emit("user:typing", { userId, userName });
         }
@@ -173,7 +173,7 @@ export class WebSocketService {
       socket.on("typing:stop", (data) => {
         const { chatId, channelId } = data;
         const room = chatId ? `chat:${chatId}` : channelId ? `channel:${channelId}` : null;
-        
+
         if (room) {
           socket.to(room).emit("user:stop-typing", { userId });
         }
@@ -182,7 +182,7 @@ export class WebSocketService {
       // Handle disconnection
       socket.on("disconnect", (reason) => {
         logger.info(`User ${userName} disconnected`, { userId, socketId: socket.id, reason });
-        
+
         // Remove from connected users
         const userSockets = this.connectedUsers.get(userId);
         if (userSockets) {

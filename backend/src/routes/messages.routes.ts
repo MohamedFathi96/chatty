@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getChatMessages, getChannelMessages, getMessage, createChatMessageController, createChannelMessageController } from "../controllers/messages.controller.ts";
+import {
+  getChatMessages,
+  getChannelMessages,
+  getMessage,
+  createChatMessageController,
+  createChannelMessageController,
+} from "../controllers/messages.controller.ts";
 import { z } from "zod";
 import { validate } from "../middleware/validate.ts";
 
@@ -35,7 +41,12 @@ const createMessageSchema = z.object({
 
 // Routes
 router.get("/chat/:chatId", validate(chatIdSchema, "params"), validate(paginationSchema, "query"), getChatMessages);
-router.post("/chat/:chatId", validate(chatIdSchema, "params"), validate(createMessageSchema, "body"), createChatMessageController);
+router.post(
+  "/chat/:chatId",
+  validate(chatIdSchema, "params"),
+  validate(createMessageSchema, "body"),
+  createChatMessageController
+);
 
 router.get(
   "/channel/:channelId",
@@ -43,7 +54,12 @@ router.get(
   validate(paginationSchema, "query"),
   getChannelMessages
 );
-router.post("/channel/:channelId", validate(channelIdSchema, "params"), validate(createMessageSchema, "body"), createChannelMessageController);
+router.post(
+  "/channel/:channelId",
+  validate(channelIdSchema, "params"),
+  validate(createMessageSchema, "body"),
+  createChannelMessageController
+);
 
 router.get("/:messageId", validate(messageIdSchema, "params"), getMessage);
 
