@@ -13,8 +13,6 @@ export interface IChatDocument extends IChat, mongoose.Document {}
 const ChatSchema = new Schema<IChatDocument>(
   {
     participants: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
-    type: { type: String, enum: ["direct", "group"], default: "direct" },
-    name: { type: String, trim: true }, // Optional, mainly for group chats
     lastMessage: { type: String },
     lastMessageAt: { type: Date },
   },

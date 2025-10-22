@@ -3,37 +3,32 @@ import { User } from "@/models/User.ts";
 import { BadRequestError, NotFoundError } from "@/errors/AppError.ts";
 
 export async function startDirectChat(currentUserId: string, targetUserId: string) {
-  // Validate that target user exists
   const targetUser = await User.findById(targetUserId);
   if (!targetUser) throw new NotFoundError("Target user not found");
 
-  // Check if user is trying to chat with themselves
-  if (currentUserId === targetUserId) {
-    throw new BadRequestError("Cannot start a chat with yourself");
-  }
+  if (currentUserId === targetUserId) throw new BadRequestError("Cannot start a chat with yourself");
 
-  // Check if a direct chat already exists between these users
   const existingChat = await Chat.findOne({
-    type: "direct",
+    type: "",
     participants: { $all: [currentUserId, targetUserId], $size: 2 },
   });
 
   if (existingChat) {
     return {
-      chatId: existingChat._id.toString(),
+      chatId: (existingChat._id as any).toString(),
       message: "Chat already exists",
       isNew: false,
     };
   }
 
-  // Create new direct chat
   const newChat = await Chat.create({
     participants: [currentUserId, targetUserId],
-    type: "direct",
+    lastMessage: "",
+    lastMessageAt: new Date(),
   });
 
   return {
-    chatId: newChat._id.toString(),
+    chatId: (newChat._id as any).toString(),
     message: "Chat created successfully",
     isNew: true,
   };

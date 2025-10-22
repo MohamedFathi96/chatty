@@ -5,7 +5,7 @@ import { ApiResponseHelper } from "../utils/responceHelper.ts";
 
 export const startChat = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.body;
-  const currentUserId = (req as any).user.sub; // From JWT middleware
+  const currentUserId = (req as any).user.sub;
 
   const result = await startDirectChat(currentUserId, userId);
 
