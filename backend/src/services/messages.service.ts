@@ -3,6 +3,7 @@ import { Chat } from "../models/Chat.ts";
 import { Channel } from "../models/Channel.ts";
 import { AppError } from "../errors/AppError.ts";
 import mongoose from "mongoose";
+import { getWebSocketService } from "./websocket.service.ts";
 
 export const getMessagesByChat = async (chatId: string, userId: string, page: number = 1, limit: number = 50) => {
   const chat = await Chat.findById(chatId);
@@ -95,6 +96,84 @@ export const getMessageById = async (messageId: string, userId: string) => {
     if (!channel || !channel.members.some((member) => member.toString() === userId)) {
       throw new AppError("Access denied", 403);
     }
+  }
+
+  return message;
+};
+
+export const createChatMessage = async (chatId: string, senderId: string, text: string) => {
+  // Verify chat exists and user is a participant
+  const chat = await Chat.findById(chatId);
+  if (!chat) {
+    throw new AppError("Chat not found", 404);
+  }
+
+  if (!chat.participants.some((participant) => participant.toString() === senderId)) {
+    throw new AppError("Access denied: You are not a participant in this chat", 403);
+  }
+
+  // Create the message
+  const message = new Message({
+    chatId,
+    senderId,
+    text,
+    type: "message",
+  });
+
+  await message.save();
+
+  // Update chat's last message info
+  await Chat.findByIdAndUpdate(chatId, {
+    lastMessage: text,
+    lastMessageAt: new Date(),
+  });
+
+  // Populate sender information
+  await message.populate("senderId", "name email");
+
+  // Emit WebSocket event to chat participants
+  try {
+    const webSocketService = getWebSocketService();
+    webSocketService.emitNewMessageToChat(chatId, message);
+  } catch (error) {
+    // Log error but don't fail the message creation
+    console.error("Failed to emit WebSocket event:", error);
+  }
+
+  return message;
+};
+
+export const createChannelMessage = async (channelId: string, senderId: string, text: string) => {
+  // Verify channel exists and user is a member
+  const channel = await Channel.findById(channelId);
+  if (!channel) {
+    throw new AppError("Channel not found", 404);
+  }
+
+  if (!channel.members.some((member) => member.toString() === senderId)) {
+    throw new AppError("Access denied: You are not a member of this channel", 403);
+  }
+
+  // Create the message
+  const message = new Message({
+    channelId,
+    senderId,
+    text,
+    type: "message",
+  });
+
+  await message.save();
+
+  // Populate sender information
+  await message.populate("senderId", "name email");
+
+  // Emit WebSocket event to channel members
+  try {
+    const webSocketService = getWebSocketService();
+    webSocketService.emitNewMessageToChannel(channelId, message);
+  } catch (error) {
+    // Log error but don't fail the message creation
+    console.error("Failed to emit WebSocket event:", error);
   }
 
   return message;

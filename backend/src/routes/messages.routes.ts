@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getChatMessages, getChannelMessages, getMessage } from "../controllers/messages.controller.ts";
+import { getChatMessages, getChannelMessages, getMessage, createChatMessageController, createChannelMessageController } from "../controllers/messages.controller.ts";
 import { z } from "zod";
 import { validate } from "../middleware/validate.ts";
 
@@ -29,14 +29,22 @@ const channelIdSchema = z.object({
   channelId: z.string().min(1, "Channel ID is required"),
 });
 
+const createMessageSchema = z.object({
+  text: z.string().min(1, "Message text is required").max(1000, "Message text too long"),
+});
+
 // Routes
 router.get("/chat/:chatId", validate(chatIdSchema, "params"), validate(paginationSchema, "query"), getChatMessages);
+router.post("/chat/:chatId", validate(chatIdSchema, "params"), validate(createMessageSchema, "body"), createChatMessageController);
+
 router.get(
   "/channel/:channelId",
   validate(channelIdSchema, "params"),
   validate(paginationSchema, "query"),
   getChannelMessages
 );
+router.post("/channel/:channelId", validate(channelIdSchema, "params"), validate(createMessageSchema, "body"), createChannelMessageController);
+
 router.get("/:messageId", validate(messageIdSchema, "params"), getMessage);
 
 export default router;
